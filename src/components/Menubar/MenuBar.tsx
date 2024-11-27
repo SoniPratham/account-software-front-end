@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import MenubarController from './MenubarController';
-import AccountMasterForm from '../../forms/account-master/account-master';
+import AccountMasterForm from '../../forms/master/account-master/account-master';
+import BookMasterForm from '../../forms/master/book-master/book-master';
 
 const MenuItem = ({ label, children, isTopLevel = false ,formComponent}) => {
   const {isOpen,setIsOpen} = MenubarController();
@@ -37,7 +38,7 @@ const MasterModule = () => {
             <MenuItem label="Account Group Master" />
             <MenuItem label="Item Master" />
             <MenuItem label="Item Group Master" />
-            <MenuItem label="Book Master" />
+            <MenuItem label="Book Master" formComponent = {<BookMasterForm/>}/>
           </MenuItem>
           <MenuItem label="Transaction">
             <MenuItem label="Purchase" />
