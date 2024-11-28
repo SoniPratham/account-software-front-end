@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 const MenubarController = () => {
   const [isOpen, setIsOpen] = useState(false);
   
@@ -8,4 +8,4 @@ const MenubarController = () => {
   }
 }
 
-export default MenubarController;
+export default MenubarController; 
