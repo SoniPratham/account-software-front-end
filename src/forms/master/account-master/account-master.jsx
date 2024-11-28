@@ -1,4 +1,3 @@
-import React from 'react';
 import MasterController from './master-controller';
 
 const AccountMasterForm = () => {
