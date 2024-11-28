@@ -1,108 +1,27 @@
-import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import AccountGroupMasterController from './account-group-master-controller';
 
-const useItemGroupMasterController = (config) => {
-  const { defaultValues, validationRules } = config;
-  const [formData, setFormData] = useState(defaultValues);
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: undefined
-      }));
-    }
-  };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    Object.keys(validationRules).forEach(key => {
-      const rules = validationRules[key];
-      const value = formData[key];
-
-      if (rules.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
-        newErrors[key] = rules.required === true 
-          ? `${key.charAt(0).toUpperCase() + key.slice(1)} is required` 
-          : rules.required;
-      }
-
-      if (rules.validate && typeof rules.validate === 'function') {
-        const validationResult = rules.validate(value);
-        if (typeof validationResult === 'string') {
-          newErrors[key] = validationResult;
-        }
-      }
-    });
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (validateForm()) {
-      setIsSubmitting(true);
-      try {
-        const response = await fetch('http://localhost:8262/account/software/item/group/master', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData)
-        });
-
-        if (!response.ok) {
-          throw new Error('Submission failed');
-        }
-
-        const responseData = await response.json();
-        console.log('Submission successful:', responseData);
-        setFormData(defaultValues);
-      } catch (error) {
-        console.error('Submission error:', error);
-      } finally {
-        setIsSubmitting(false);
-      }
-    }
-  };
-
-  return {
-    handleInputChange,
-    handleSubmit,
-    formData,
-    errors,
-    isSubmitting
-  };
-};
-
-const ItemGroupMasterForm = () => {
+const AccountGroupMasterForm = () => {
   const {
     handleInputChange, 
     handleSubmit, 
     formData,
     errors,
     isSubmitting
-  } = useItemGroupMasterController({
+  } = AccountGroupMasterController({
     defaultValues: {
       name: '',
       code: ''
     },
     validationRules: {
       name: {
-        required: 'Item Group Name is required',
+        required: 'Account Group Name is required',
         validate: (value) => value && value.trim() !== '' || 'Name cannot be blank'
       },
       code: {
-        required: 'Item Group Code is required',
+        required: 'Account Group Code is required',
         validate: (value) => value > 0 || 'Code must be a positive number'
       }
     }
@@ -111,12 +30,12 @@ const ItemGroupMasterForm = () => {
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-gray-800">Item Group Master</CardTitle>
+        <CardTitle className="text-2xl font-bold text-gray-800">Account Group Master</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Item Group Name */}
+            {/* Account Group Name */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Group Name
@@ -135,7 +54,7 @@ const ItemGroupMasterForm = () => {
               )}
             </div>
 
-            {/* Item Group Code */}
+            {/* Account Group Code */}
             <div>
               <label htmlFor="code" className="block text-sm font-medium text-gray-700">
                 Group Code
@@ -172,4 +91,4 @@ const ItemGroupMasterForm = () => {
   );
 };
 
-export default ItemGroupMasterForm;
+export default AccountGroupMasterForm;
