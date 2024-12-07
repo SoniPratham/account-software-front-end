@@ -85,3 +85,5 @@ const AccountGroupMasterController = (config) => {
       isSubmitting
     };
   };
+
+  export default AccountGroupMasterController;

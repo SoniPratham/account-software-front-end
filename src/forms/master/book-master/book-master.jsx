@@ -1,228 +1,254 @@
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import BookMasterController from './book-master-controller';
 
-// Enum for Transaction Type (matching the DTO)
+// Enum for Transaction Type
 const TransactionType = {
   CREDIT: 'CREDIT',
   DEBIT: 'DEBIT'
 };
 
-
-
 const BookMasterForm = () => {
-  const {
-    handleCheckboxChange, 
-    handleInputChange, 
-    handleSubmit, 
-    formData,
-    errors,
-    bookGroups,
-    isLoading
-  } = BookMasterController({
-    defaultValues: {
-      name: '',
-      uuid: '',
-      code: '',
-      openingBalance: 0,
-      transcationType: '',
-      accntCode: '',
-      bookGroupMasterUuid: '',
-      bookGroupMasterName: '',
-      active: false
-    },
-    validationRules: {
-      name: {
-        required: 'Book name is required',
-        validate: (value) => value && value.trim() !== '' || 'Book name cannot be blank'
-      },
-      code: {
-        required: 'Book code is required',
-        validate: (value) => value > 0 || 'Code must be a positive number'
-      },
-      openingBalance: {
-        validate: (value) => value >= 0 || 'Opening balance cannot be negative'
-      },
-      transcationType: {
-        required: 'Transaction type is required'
-      },
-      accntCode: {
-        required: 'Account code is required',
-        validate: (value) => value > 0 || 'Account code must be a positive number'
-      },
-      bookGroupMasterUuid: {
-        required: 'Book group is required'
-      }
-    }
+  const [formData, setFormData] = useState({
+    bookGroupMasterUuid: '', // Book Group
+    code: '', // Book Code
+    name: '', // Book Name
+    accntCode: '', // Account Code
+    openingBalance: '', // Opening Balance
+    transcationType: '', // Transaction Type
+    active: false
   });
+
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Sample book groups (replace with actual data source)
+  const bookGroups = [
+    { uuid: '1', code: 'BG001', name: 'Sales Book' },
+    { uuid: '2', code: 'BG002', name: 'Purchase Book' },
+    // Add more book groups
+  ];
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    
+    let processedValue = value;
+    
+    switch (name) {
+      case 'name':
+        processedValue = value.slice(0, 40);
+        break;
+      case 'code':
+      case 'accntCode':
+        processedValue = value.replace(/\D/g, '');
+        break;
+      case 'openingBalance':
+        processedValue = value
+          .replace(/[^0-9.]/g, '')
+          .replace(/(\..*)\./g, '$1')
+          .split('.')
+          .map((part, index) => 
+            index === 0 
+              ? part.slice(0, 8)  // 8 digits before decimal 
+              : part.slice(0, 2)  // 2 digits after decimal
+          )
+          .join('.');
+        break;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : processedValue
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Basic validation
+    const newErrors = {};
+    
+    if (!formData.bookGroupMasterUuid) {
+      newErrors.bookGroupMasterUuid = 'Book Group is required';
+    }
+    
+    if (!formData.code) {
+      newErrors.code = 'Book Code is required';
+    }
+    
+    if (!formData.name) {
+      newErrors.name = 'Book Name is required';
+    }
+
+    setErrors(newErrors);
+    
+    // If no errors, proceed with submission
+    if (Object.keys(newErrors).length === 0) {
+      setIsSubmitting(true);
+      
+      // Simulate form submission
+      setTimeout(() => {
+        console.log('Form submitted', formData);
+        setIsSubmitting(false);
+      }, 1000);
+    }
+  };
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-gray-800">Book Master</CardTitle>
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl font-bold text-gray-800">
+          Book Master
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Book Code */}
-            <div>
-              <label htmlFor="code" className="block text-sm font-medium text-gray-700">
-                Book Code
-              </label>
-              <input
-                id="code"
-                name="code"
-                type="number"
-                value={formData.code}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm 
-                  ${errors.code ? 'border-red-500 focus:border-red-500' : 'focus:border-indigo-300'}
-                  focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
-              />
-              {errors.code && (
-                <p className="mt-1 text-xs text-red-500">{errors.code}</p>
-              )}
-            </div>
-
-            {/* Book Name */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Book Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm 
-                  ${errors.name ? 'border-red-500 focus:border-red-500' : 'focus:border-indigo-300'}
-                  focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
-              />
-              {errors.name && (
-                <p className="mt-1 text-xs text-red-500">{errors.name}</p>
-              )}
-            </div>
-
-            {/* Book Group Dropdown */}
-            <div>
-              <label htmlFor="bookGroupMasterUuid" className="block text-sm font-medium text-gray-700">
-                Book Group
-              </label>
-              <select
-                id="bookGroupMasterUuid"
-                name="bookGroupMasterUuid"
-                value={formData.bookGroupMasterUuid}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm 
-                  ${errors.bookGroupMasterUuid ? 'border-red-500 focus:border-red-500' : 'focus:border-indigo-300'}
-                  focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
-              >
-                <option value="">
-                  {isLoading ? 'Loading groups...' : 'Select Book Group'}
-                </option>
-                {bookGroups.map((group) => (
-                  <option 
-                    key={group.uuid} 
-                    value={group.uuid}
+        <form onSubmit={handleSubmit}>
+          <table className="w-full border-collapse">
+            <tbody>
+              {/* First Row: Book Group and Book Code */}
+              <tr>
+                <td className="p-2 w-1/4">
+                  <label htmlFor="bookGroupMasterUuid" className="block text-sm font-medium text-gray-700">
+                    Book Group
+                  </label>
+                </td>
+                <td className="p-2 w-1/4">
+                  <select
+                    id="bookGroupMasterUuid"
+                    name="bookGroupMasterUuid"
+                    value={formData.bookGroupMasterUuid}
+                    onChange={handleInputChange}
+                    className={`block w-full rounded-md border-gray-300 shadow-sm 
+                      ${errors.bookGroupMasterUuid ? "border-red-500 focus:border-red-500" : "focus:border-indigo-300"}
+                      focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
                   >
-                    {`${group.code} - ${group.name}`}
-                  </option>
-                ))}
-              </select>
-              {errors.bookGroupMasterUuid && (
-                <p className="mt-1 text-xs text-red-500">{errors.bookGroupMasterUuid}</p>
-              )}
-            </div>
+                    <option value="">Select Book Group</option>
+                    {bookGroups.map((group) => (
+                      <option key={group.uuid} value={group.uuid}>
+                        {`${group.code} - ${group.name}`}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.bookGroupMasterUuid && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.bookGroupMasterUuid}
+                    </p>
+                  )}
+                </td>
+                <td className="p-2 w-1/4">
+                  <label htmlFor="code" className="block text-sm font-medium text-gray-700">
+                    Book Code
+                  </label>
+                </td>
+                <td className="p-2 w-1/4">
+                  <input
+                    id="code"
+                    name="code"
+                    type="text"
+                    value={formData.code}
+                    onChange={handleInputChange}
+                    className={`block w-full rounded-md border-gray-300 shadow-sm 
+                      ${errors.code ? "border-red-500 focus:border-red-500" : "focus:border-indigo-300"}
+                      focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
+                  />
+                  {errors.code && (
+                    <p className="mt-1 text-xs text-red-500">{errors.code}</p>
+                  )}
+                </td>
+              </tr>
 
-            {/* Account Code */}
-            <div>
-              <label htmlFor="accntCode" className="block text-sm font-medium text-gray-700">
-                Account Code
-              </label>
-              <input
-                id="accntCode"
-                name="accntCode"
-                type="number"
-                value={formData.accntCode}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm 
-                  ${errors.accntCode ? 'border-red-500 focus:border-red-500' : 'focus:border-indigo-300'}
-                  focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
-              />
-              {errors.accntCode && (
-                <p className="mt-1 text-xs text-red-500">{errors.accntCode}</p>
-              )}
-            </div>
+              {/* Book Name Row with Colspan */}
+              <tr>
+                <td className="p-2 w-1/4">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    Book Name 
+                  </label>
+                </td>
+                <td colSpan={3} className="p-2 w-3/4">
+                  <input
+                    id="name"
+                    name="name"
+                    maxLength={40}
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className={`block w-full rounded-md border-gray-300 shadow-sm 
+                      ${errors.name ? "border-red-500 focus:border-red-500" : "focus:border-indigo-300"}
+                      focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-xs text-red-500">{errors.name}</p>
+                  )}
+                </td>
+              </tr>
 
-            {/* Opening Balance */}
-            <div>
-              <label htmlFor="openingBalance" className="block text-sm font-medium text-gray-700">
-                Opening Balance
-              </label>
-              <input
-                id="openingBalance"
-                name="openingBalance"
-                type="number"
-                step="0.01"
-                value={formData.openingBalance}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm 
-                  ${errors.openingBalance ? 'border-red-500 focus:border-red-500' : 'focus:border-indigo-300'}
-                  focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
-              />
-              {errors.openingBalance && (
-                <p className="mt-1 text-xs text-red-500">{errors.openingBalance}</p>
-              )}
-            </div>
+              {/* Account Code and Opening Balance */}
+              <tr>
+                <td className="p-2 w-1/4">
+                  <label htmlFor="accntCode" className="block text-sm font-medium text-gray-700">
+                    Account Code
+                  </label>
+                </td>
+                <td className="p-2 w-1/4">
+                  <input
+                    id="accntCode"
+                    name="accntCode"
+                    value={formData.accntCode}
+                    onChange={handleInputChange}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  />
+                </td>
+                <td className="p-2 w-1/4">
+                  <label htmlFor="openingBalance" className="block text-sm font-medium text-gray-700">
+                    Opening Balance
+                  </label>
+                </td>
+                <td className="p-2 w-1/4">
+                  <input
+                    id="openingBalance"
+                    name="openingBalance"
+                    value={formData.openingBalance}
+                    onChange={handleInputChange}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  />
+                </td>
+              </tr>
 
-            {/* Transaction Type */}
-            <div>
-              <label htmlFor="transcationType" className="block text-sm font-medium text-gray-700">
-                Transaction Type
-              </label>
-              <select
-                id="transcationType"
-                name="transcationType"
-                value={formData.transcationType}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm 
-                  ${errors.transcationType ? 'border-red-500 focus:border-red-500' : 'focus:border-indigo-300'}
-                  focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
-              >
-                <option value="">Select transaction type</option>
-                <option value={TransactionType.CREDIT}>Credit</option>
-                <option value={TransactionType.DEBIT}>Debit</option>
-              </select>
-              {errors.transcationType && (
-                <p className="mt-1 text-xs text-red-500">{errors.transcationType}</p>
-              )}
-            </div>
+              {/* Transaction Type */}
+              <tr>
+                <td className="p-2 w-1/4">
+                  <label htmlFor="transcationType" className="block text-sm font-medium text-gray-700">
+                    Transaction Type
+                  </label>
+                </td>
+                <td className="p-2 w-1/4">
+                  <select
+                    id="transcationType"
+                    name="transcationType"
+                    value={formData.transcationType}
+                    onChange={handleInputChange}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  >
+                    <option value="">Select Transaction Type</option>
+                    <option value={TransactionType.CREDIT}>Credit</option>
+                    <option value={TransactionType.DEBIT}>Debit</option>
+                  </select>
+                </td>
+                
+              </tr>
 
-            {/* Active Checkbox */}
-            <div className="flex items-center">
-              <input
-                id="active"
-                name="active"
-                type="checkbox"
-                checked={formData.active}
-                onChange={handleCheckboxChange}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label htmlFor="active" className="ml-2 block text-sm text-gray-900">
-                Active
-              </label>
-            </div>
-          </div>
-          
-          {/* Submit Button */}
-          <div className="mt-4">
-            <button
-              type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Submit
-            </button>
-          </div>
+              {/* Submit Button */}
+              <tr>
+                <td colSpan="4" className="p-2 text-center">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit"}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </form>
       </CardContent>
     </Card>

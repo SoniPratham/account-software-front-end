@@ -35,25 +35,7 @@ const AccountGroupMasterForm = () => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Account Group Name */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Group Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm 
-                  ${errors.name ? 'border-red-500 focus:border-red-500' : 'focus:border-indigo-300'}
-                  focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
-              />
-              {errors.name && (
-                <p className="mt-1 text-xs text-red-500">{errors.name}</p>
-              )}
-            </div>
-
+            
             {/* Account Group Code */}
             <div>
               <label htmlFor="code" className="block text-sm font-medium text-gray-700">
@@ -73,6 +55,27 @@ const AccountGroupMasterForm = () => {
                 <p className="mt-1 text-xs text-red-500">{errors.code}</p>
               )}
             </div>
+            
+            {/* Account Group Name */}
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Group Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm 
+                  ${errors.name ? 'border-red-500 focus:border-red-500' : 'focus:border-indigo-300'}
+                  focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
+              />
+              {errors.name && (
+                <p className="mt-1 text-xs text-red-500">{errors.name}</p>
+              )}
+            </div>
+
+            
           </div>
           
           {/* Submit Button */}

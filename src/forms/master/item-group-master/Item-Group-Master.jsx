@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import ItemGroupMasterController from './item-group-master';
+import ItemGroupMasterController from './Item-Group-Master';
 
 
 const ItemGroupMasterForm = () => {

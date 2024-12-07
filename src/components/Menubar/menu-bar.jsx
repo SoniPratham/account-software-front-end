@@ -100,8 +100,8 @@ const MenuItem = ({ label, children }) => {
 
 const MenuBar = () => {
   return (
-    <div className="fixed top-0 left-0 w-full bg-white border-b border-gray-200 shadow-md z-40 master-menu">
-      <div className="flex flex-row items-center h-12 px-4">
+    <div className="bg-white border-b border-gray-200 shadow-md z-40 master-menu">
+      <div className="flex flex-row items-center h-12">
         <MenuItem label="Master Entry">
           <MenuItem label="Account Master" />
           <MenuItem label="Account Group Master" />
